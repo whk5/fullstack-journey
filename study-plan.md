@@ -17,13 +17,31 @@
 | Phase 6 · 综合项目 | 4+ | 40h+ | 可写进作品集的完整全栈应用 |
 | Phase 7 · 进阶 | 按兴趣 | — | WebSocket / Next.js / NestJS / 队列 |
 
-## 每日套路（不设硬时间线）
+## 每天怎么学
+
+**学习循环**（每天 4 步）：
 
 | 步骤 | 内容 |
 |---|---|
-| 1 | 读当天材料，记关键词（读不动就直接动手，回头再读） |
-| 2 | 先跟敲跑通，再脱离教程做变体练习 |
-| 3 | 写 3 行笔记（学会什么 / 卡在哪 / 明天问什么）→ git commit |
+| 1 | 读材料：对照自己昨天的代码读，只抓关键词，不背 API（读不动直接动手，回头再读） |
+| 2 | 跟敲：先照文档例子跑通 |
+| 3 | 脱教程：按当天交付物做变体练习（真正学会的一步） |
+| 4 | 收尾：3 行笔记（学会什么 / 卡在哪 / 明天问什么）→ git commit → 喊 AI review |
+
+**卡壳顺序**：查 v24 API 文档 → 中文版 → 问 AI 助教；同一个点别超过 15 分钟。
+
+**逐日导读**（读重点 + 常见坑）：
+
+- **Day 1**：材料当背景读一遍；重点在笔记里自己组织「前端 vs Node 差异」
+- **Day 2**：只读 Anatomy 一篇（12min），对照 `server.ts` 读；抓：回调每请求调用一次 / `method`·`url`·`headers`（key 全小写）/ body 是流（`'data'`→`'end'`）/ `statusCode`·`setHeader`·`end` / 文末 Echo 例子=作业雏形。坑：`request.on('error')` 不监听会崩进程；query 解析文章没讲 → 查 API `new URL(request.url!, 'http://localhost')`
+- **Day 3**：读 File stats + Reading files；抓：`path.join` vs `resolve` vs `extname`、`fs.promises.readFile` 优先。坑：读文件必 try/catch，文件不存在返回 404 不是 500；MIME 手写小表（.html/.css/.js/.png）够用
+- **Day 4**：只抓输出顺序规律（同步 → nextTick → 微任务 → 宏任务）；先写预测清单再跑验证，对不上的记入问题清单。坑：别死磕全部机制，够用就行
+- **Day 5**：读 streams 两篇；抓：`readFile` vs `createReadStream`、`pipe` 自动处理背压。坑：流的 `'error'` 不冒泡（监听它或用 `pipeline`）；防路径穿越 = `path.resolve` 后检查前缀
+- **Day 6**：重读 Anatomy「Request Body」段；抓：chunk 是 Buffer、`'end'` 后再拼。坑：空 body / 非法 JSON → 400；创建成功用 201
+- **Day 7**：抓状态码语义（200/201/204/400/404/405）；`req`/`res` 是 EventEmitter（回顾 events 文档）。坑：PATCH 只改传入的字段；id 不存在一律 404
+- **Day 8**：`curl -i` 看响应头；先测正常路径，再测边界（非法 JSON / 不存在 id / 错误方法）
+- **Day 9**：问题清单逐条先自己答，再对照文档验证；答不上来的继续留清单
+- **Day 10**：对着验收标准 5 条口头自测 + 写复盘笔记
 
 约定：
 
@@ -110,8 +128,8 @@
 
 ## 协作方式（AI 助教）
 
-1. 每天：先独立做题 → 卡住随时问 → 完成后请 review（按真实 code review 标准）→ 改进后 commit
-2. AI 维护进度（勾选 + 问题清单），Day 5 / Day 10 做复盘和验收
+1. 按「每天怎么学」的 4 步循环执行：先独立做题 → 卡住随时问（先查文档）→ 完成后请 review（按真实 code review 标准）→ 改进后 commit
+2. AI 维护进度（勾选 + 问题清单）；块 1 结束（Day 5）与块 2 结束（Day 8）各做一次小结，Day 10 做阶段复盘和验收
 
 ### 问题清单
 
