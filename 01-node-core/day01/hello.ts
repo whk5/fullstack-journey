@@ -6,4 +6,5 @@ const info = {
 };
 
 console.log("Hello, Node + TypeScript!");
+console.log(process.env.PORT);
 console.table(info);

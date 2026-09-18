@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Day 02 · createServer 调试页</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f6f7f9;
+    --card: #ffffff;
+    --text: #1c1e21;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --ok: #15803d;
+    --err: #b91c1c;
+    --code-bg: #0f172a;
+    --code-text: #dbe3ee;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1115;
+      --card: #171a21;
+      --text: #e6e8eb;
+      --muted: #9aa3af;
+      --border: #2a2f3a;
+      --accent: #3b82f6;
+      --accent-hover: #60a5fa;
+      --ok: #4ade80;
+      --err: #f87171;
+      --code-bg: #0b0e14;
+      --code-text: #dbe3ee;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 32px 16px 48px;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.6 system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+  }
+  main { max-width: 760px; margin: 0 auto; display: grid; gap: 16px; }
+  header { display: grid; gap: 4px; }
+  h1 { font-size: 22px; margin: 0; }
+  header p { margin: 0; color: var(--muted); }
+  section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  h2 {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    color: var(--muted);
+    margin: 0 0 12px;
+  }
+  label { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 4px; }
+  input[type="text"], select, textarea {
+    width: 100%;
+    padding: 8px 10px;
+    font: inherit;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  textarea { resize: vertical; min-height: 64px; font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .row { display: grid; grid-template-columns: 1fr 140px; gap: 12px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  button {
+    font: inherit;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+  }
+  button:hover { border-color: var(--accent); }
+  button.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  button.primary:hover { background: var(--accent-hover); }
+  #status { margin: 14px 0 0; font-size: 13px; color: var(--muted); }
+  #status.ok { color: var(--ok); }
+  #status.err { color: var(--err); }
+  pre {
+    margin: 10px 0 0;
+    padding: 12px 14px;
+    min-height: 88px;
+    max-height: 320px;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: var(--code-bg);
+    color: var(--code-text);
+    border-radius: 8px;
+    font: 12.5px/1.6 ui-monospace, "Cascadia Code", Consolas, monospace;
+  }
+  pre.error { color: #fca5a5; }
+  ul { margin: 0; padding-left: 18px; }
+  li { margin: 6px 0; }
+  code {
+    padding: 1px 5px;
+    border-radius: 5px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    font-size: 12.5px;
+  }
+  .muted { color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Day 02 · createServer 调试页</h1>
+    <p>向 <code>localhost:8080</code> 发请求，验证 <code>'data'</code> 事件是否被触发。</p>
+  </header>
+
+  <section>
+    <h2>请求配置</h2>
+
+    <div class="row">
+      <div>
+        <label for="url">接口地址</label>
+        <input id="url" type="text" value="http://localhost:8080/" />
+      </div>
+      <div>
+        <label for="method">方法</label>
+        <select id="method">
+          <option value="POST" selected>POST</option>
+          <option value="GET">GET</option>
+          <option value="PUT">PUT</option>
+        </select>
+      </div>
+    </div>
+
+    <label for="body">request body（GET 不会携带）</label>
+    <textarea id="body">hello</textarea>
+
+    <div class="actions">
+      <button id="btnForm" class="primary">表单提交（保证送达）</button>
+      <button id="btnFetch">fetch 发送</button>
+      <button id="btnHealth">GET 健康检查</button>
+    </div>
+
+    <p id="status">等待操作…</p>
+    <pre id="output">结果会显示在这里。表单提交的响应在隐藏 iframe 里，无法读取，请看 Node 终端。</pre>
+  </section>
+
+  <section>
+    <h2>预期现象</h2>
+    <ul>
+      <li><b>GET 健康检查</b>：服务端正常返回 JSON，其中 <code>body</code> 为 <code>""</code> —— 无请求体，<code>'data'</code> 不触发。</li>
+      <li><b>表单提交 POST</b>：请求不受 CORS 限制，一定到达服务端 → <code>'data'</code> 触发 → <code>push('2121')</code> 推入字符串 → <code>'end'</code> 里 <code>Buffer.concat</code> 抛 <b>TypeError</b>，进程崩溃。页面无响应属预期。</li>
+      <li><b>fetch POST</b>：请求到达 → 同样触发 TypeError、连接被重置；若立刻失败且 Node 终端毫无动静，说明被浏览器预检(CORS/PNA)拦截，改用表单提交。</li>
+      <li>崩溃后重启：<code>node day02/createServer.ts</code></li>
+    </ul>
+  </section>
+</main>
+
+<!-- 表单提交用隐藏 iframe 作 target：请求能发出去，页面也不会跳走 -->
+<form id="sendForm" method="post" target="sink" hidden>
+  <input type="hidden" name="message" id="formMessage" />
+</form>
+<iframe name="sink" title="表单提交目标" hidden></iframe>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const urlInput = $('url');
+  const methodSel = $('method');
+  const bodyInput = $('body');
+  const statusEl = $('status');
+  const output = $('output');
+  const sendForm = $('sendForm');
+  const formMessage = $('formMessage');
+
+  function setStatus(text, kind = '') {
+    statusEl.textContent = text;
+    statusEl.className = kind;
+  }
+
+  function show(text, isError = false) {
+    output.textContent = text;
+    output.className = isError ? 'error' : '';
+  }
+
+  $('btnForm').addEventListener('click', () => {
+    const method = methodSel.value;
+    if (method === 'PUT') {
+      setStatus('表单只能发 GET / POST', 'err');
+      show('HTML 表单不支持 PUT。改选 POST，或改用「fetch 发送」（PUT + body 同样会触发 data 事件）。', true);
+      return;
+    }
+    formMessage.value = bodyInput.value;
+    sendForm.action = urlInput.value;
+    sendForm.method = method.toLowerCase();
+    sendForm.requestSubmit();
+    setStatus(`已通过表单提交 ${method}`, 'ok');
+    show(`请求已作为浏览器导航发出，不经过 fetch，不会被 CORS/预检拦截。\n\n` +
+      (method === 'GET'
+        ? 'GET 会把字段拼到 query string，没有请求体，不会触发 \'data\'。'
+        : 'POST 会把 message 字段作为请求体发送。若 body 非空，Node 终端应出现 TypeError —— 那就是 \'data\' 事件已触发的证据。') +
+      '\n\n响应只能去 Node 终端观察（iframe 跨域无法读取）。');
+  });
+
+  $('btnFetch').addEventListener('click', async () => {
+    const method = methodSel.value;
+    const init = { method, headers: { 'Content-Type': 'text/plain;charset=UTF-8' } };
+    if (method !== 'GET') init.body = bodyInput.value;
+
+    setStatus(`fetch ${method} 发送中…`);
+    show('等待响应…');
+    const t0 = performance.now();
+    try {
+      const res = await fetch(urlInput.value, init);
+      const text = await res.text();
+      let pretty = text;
+      try {
+        pretty = JSON.stringify(JSON.parse(text), null, 2);
+      } catch {}
+      setStatus(`收到响应 ${res.status}（${Math.round(performance.now() - t0)} ms）`, 'ok');
+      show(`HTTP ${res.status} ${res.statusText}\n\n${pretty}`);
+    } catch (err) {
+      const ms = Math.round(performance.now() - t0);
+      setStatus(`fetch 失败（${ms} ms）`, 'err');
+      show(`失败：${err.message}\n\n` +
+        `两种可能：\n` +
+        `1. 请求没到服务端 —— 被浏览器 CORS / 私有网络访问(PNA) 拦截。换「表单提交」，或把本页放到与 8080 同源的 http 服务下再试。\n` +
+        `2. 请求到了且触发了 'data' —— 服务端抛 TypeError 崩溃，连接被重置。去 Node 终端确认。`, true);
+    }
+  });
+
+  $('btnHealth').addEventListener('click', async () => {
+    setStatus('GET 健康检查中…');
+    show('等待连接…');
+    const t0 = performance.now();
+    try {
+      await fetch(urlInput.value, { method: 'GET', mode: 'no-cors', cache: 'no-store' });
+      setStatus(`服务器在线（${Math.round(performance.now() - t0)} ms）`, 'ok');
+      show('连接成功 → 进程还活着。\nGET 无请求体，不会触发 \'data\' 事件。');
+    } catch {
+      setStatus('连接失败', 'err');
+      show('连不上 → 服务器可能已崩溃或未启动。\n重启命令：node day02/createServer.ts', true);
+    }
+  });
+</script>
+</body>
+</html>
