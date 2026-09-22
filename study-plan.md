@@ -93,8 +93,8 @@
 - [x] Day 1 · 归档日（环境认知 + 笔记 + commit）
 - [x] Day 2 · 多路由服务器（已归档 Anatomy 探索；`/hello` · `/time` · `/echo` 顺延 Day 9 补漏）
 - [x] Day 3 · 返回磁盘文件（path + fs）
-- [ ] Day 4 · 事件循环实验
-- [ ] Day 5 · 完整静态服务器（stream + 背压 + 安全）
+- [x] Day 4 · 事件循环实验
+- [x] Day 5 · 完整静态服务器（stream + 背压 + 安全）
 - [ ] Day 6 · TODO API：GET/POST
 - [ ] Day 7 · TODO API：PATCH/DELETE + 错误处理
 - [ ] Day 8 · curl 全量测试 + 边界用例
