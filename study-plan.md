@@ -3,7 +3,7 @@
 > 学员背景：前端工程师（React / TypeScript）
 > 节奏：每周 5 天 × 每天 2 小时 = 10h/周（不限时，以产出收尾）
 > 核心阶段：约 18 周（≈4.5 个月）→ 目标：能独立设计、开发、部署完整全栈应用
-> 当前进度：**Phase 1 · Day 3 归档，Day 4 进行中**（课表已按项目驱动重排）
+> 当前进度：**Phase 1 · Day 6 完成，Day 7 进行中**（课表已按项目驱动重排）
 
 ## 总览
 
@@ -95,7 +95,7 @@
 - [x] Day 3 · 返回磁盘文件（path + fs）
 - [x] Day 4 · 事件循环实验
 - [x] Day 5 · 完整静态服务器（stream + 背压 + 安全）
-- [ ] Day 6 · TODO API：GET/POST
+- [x] Day 6 · TODO API：GET/POST
 - [ ] Day 7 · TODO API：PATCH/DELETE + 错误处理
 - [ ] Day 8 · curl 全量测试 + 边界用例
 - [ ] Day 9 · 问题清单消化（缓冲）
