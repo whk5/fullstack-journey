@@ -228,6 +228,79 @@
       border-color: var(--err);
     }
 
+    .btn-edit {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .btn-edit:hover:not(:disabled) {
+      color: var(--accent);
+      border-color: var(--accent-dim);
+    }
+
+    .btn-save {
+      background: var(--accent);
+      color: #042f2a;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .btn-save:hover:not(:disabled) { filter: brightness(1.08); }
+
+    .btn-cancel {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .btn-cancel:hover:not(:disabled) { color: var(--text); border-color: var(--muted); }
+
+    li.todo.editing { border-color: var(--accent-dim); }
+
+    .todo-edit {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .todo-edit input[type="text"] {
+      flex: 1;
+      min-width: 0;
+      padding: 6px 10px;
+      font-size: 14px;
+    }
+
+    .todo-edit label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--muted);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .todo-edit input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      accent-color: var(--accent-dim);
+      cursor: pointer;
+    }
+
     .empty {
       text-align: center;
       color: var(--muted);
@@ -276,7 +349,7 @@
     <header>
       <p class="eyebrow">Day 6 · In-memory TODO</p>
       <h1>TODO API 调试台</h1>
-      <p class="sub">页面与接口同源（<code>localhost:3032</code>），用 <code>fetch</code> 调接口；状态码直接打在下方，重点看创建是不是 <code>201</code>、删除路径带 id。</p>
+      <p class="sub">页面与接口同源（<code>localhost:3032</code>），用 <code>fetch</code> 调接口；状态码直接打在下方，重点看创建是不是 <code>201</code>、编辑走 <code>PATCH</code>、删除路径带 id。</p>
     </header>
 
     <section class="card">
@@ -285,7 +358,7 @@
         <input id="title" type="text" placeholder="输入标题，例如：重读 Anatomy" autocomplete="off" required />
         <button class="btn-primary" type="submit" id="create-btn">创建</button>
       </form>
-      <p class="hint">空标题 → 服务端 <kbd>400</kbd>；创建成功 → <kbd>201</kbd> + 自增 id；删除 → <kbd>DELETE /todos/:id</kbd></p>
+      <p class="hint">空标题 → 服务端 <kbd>400</kbd>；创建成功 → <kbd>201</kbd> + 自增 id；点「编辑」→ <kbd>PATCH /todos/:id</kbd>（只发变化的字段）；删除 → <kbd>DELETE /todos/:id</kbd></p>
       <div id="status" role="status" aria-live="polite"></div>
     </section>
 
@@ -308,6 +381,9 @@
     const emptyEl = document.getElementById('empty');
     const statusEl = document.getElementById('status');
 
+    let editingId = null;
+    let todosCache = [];
+
     function setStatus(ok, code, message) {
       statusEl.className = ok ? 'ok' : 'err';
       statusEl.innerHTML = '<span class="code">' + code + '</span>' + message;
@@ -324,6 +400,52 @@
         id.className = 'id';
         id.textContent = '#' + todo.id;
 
+        // 编辑态：整行换成 输入框 + done 勾选 + 保存/取消
+        if (editingId === todo.id) {
+          li.classList.add('editing');
+
+          const wrap = document.createElement('div');
+          wrap.className = 'todo-edit';
+
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.value = todo.title;
+          input.id = 'edit-title-' + todo.id;
+          input.autocomplete = 'off';
+
+          const label = document.createElement('label');
+          const check = document.createElement('input');
+          check.type = 'checkbox';
+          check.checked = !!todo.done;
+          check.id = 'edit-done-' + todo.id;
+          label.append(check, document.createTextNode('done'));
+
+          wrap.append(input, label);
+
+          const save = document.createElement('button');
+          save.type = 'button';
+          save.className = 'btn-save';
+          save.textContent = '保存';
+          save.addEventListener('click', () => saveTodo(todo.id));
+
+          const cancel = document.createElement('button');
+          cancel.type = 'button';
+          cancel.className = 'btn-cancel';
+          cancel.textContent = '取消';
+          cancel.addEventListener('click', cancelEdit);
+
+          input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') saveTodo(todo.id);
+            if (e.key === 'Escape') cancelEdit();
+          });
+
+          li.append(id, wrap, save, cancel);
+          listEl.appendChild(li);
+          input.focus();
+          input.select();
+          continue;
+        }
+
         const title = document.createElement('span');
         title.className = 'title';
         title.textContent = todo.title;
@@ -332,20 +454,83 @@
         badge.className = 'badge' + (todo.done ? ' done' : '');
         badge.textContent = todo.done ? 'done' : 'open';
 
+        const edit = document.createElement('button');
+        edit.type = 'button';
+        edit.className = 'btn-edit';
+        edit.textContent = '编辑';
+        edit.addEventListener('click', () => {
+          editingId = todo.id;
+          render(todosCache);
+        });
+
         const del = document.createElement('button');
         del.type = 'button';
         del.className = 'btn-del';
         del.textContent = '删除';
         del.addEventListener('click', () => deleteTodo(todo.id));
 
-        li.append(id, title, badge, del);
+        li.append(id, title, badge, edit, del);
         listEl.appendChild(li);
+      }
+    }
+
+    function cancelEdit() {
+      editingId = null;
+      render(todosCache);
+    }
+
+    async function saveTodo(id) {
+      const original = todosCache.find((t) => t.id === id);
+      const input = document.getElementById('edit-title-' + id);
+      const check = document.getElementById('edit-done-' + id);
+      if (!original || !input || !check) return;
+
+      const title = input.value.trim();
+      if (!title) {
+        setStatus(false, '本地', '标题不能为空');
+        input.focus();
+        return;
+      }
+
+      // PATCH 只发变化的字段 —— 没变就不该发请求（空 body 服务端会 400）
+      const body = {};
+      if (title !== original.title) body.title = title;
+      if (check.checked !== !!original.done) body.done = check.checked;
+      if (Object.keys(body).length === 0) {
+        setStatus(false, '本地', '没有变化，无需 PATCH');
+        cancelEdit();
+        return;
+      }
+
+      try {
+        const res = await fetch('/todos/' + id, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          setStatus(true, res.status, 'PATCH /todos/' + id + ' · 发送 ' + JSON.stringify(body));
+          editingId = null;
+          await loadTodos();
+        } else {
+          setStatus(false, res.status, data.error || '更新失败');
+        }
+      } catch (err) {
+        setStatus(false, 'ERR', err.message + '（服务起来了吗？）');
       }
     }
 
     async function deleteTodo(id) {
       try {
         const res = await fetch('/todos/' + id, { method: 'DELETE' });
+        // Day 7：删除成功是 204 无 body —— 不能直接 res.json()（空串会 SyntaxError）
+        if (res.status === 204) {
+          setStatus(true, res.status, 'DELETE /todos/' + id + ' · 204 No Content');
+          await loadTodos();
+          return;
+        }
+        // 兼容 day06（仍返回 200 + JSON）
         const data = await res.json();
         if (res.ok) {
           setStatus(true, res.status, 'DELETE /todos/' + id + ' · 已删 #' + data.deleted);
@@ -367,6 +552,7 @@
           return;
         }
         setStatus(true, res.status, 'GET /todos · ' + data.length + ' 条');
+        todosCache = data;
         render(data);
       } catch (err) {
         setStatus(false, 'ERR', err.message + '（服务起来了吗？）');
