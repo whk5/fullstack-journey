@@ -3,7 +3,7 @@
 > 学员背景：前端工程师（React / TypeScript）
 > 节奏：每周 5 天 × 每天 2 小时 = 10h/周（不限时，以产出收尾）
 > 核心阶段：约 18 周（≈4.5 个月）→ 目标：能独立设计、开发、部署完整全栈应用
-> 当前进度：**Phase 1 · Day 6 完成，Day 7 进行中；Day 8 课程材料已备**（课表已按项目驱动重排）
+> 当前进度：**Phase 1 · Day 6 完成，Day 7 进行中；Day 8、Day 9 课程材料已备**（课表已按项目驱动重排）
 
 ## 总览
 
@@ -81,7 +81,7 @@
 
 | Day | 主题 | 练（交付物） |
 |---|---|---|
-| 9 | 问题清单消化 | 集中解决文末「问题清单」+ 补漏代码（`req` 流、EventEmitter 小结） |
+| 9 | 问题清单消化 | 集中解决文末「问题清单」+ 补漏代码（`req` 流、EventEmitter 小结）（材料：`01-node-core/day09/`） |
 | 10 | 验收自测 + 复盘 | 口头自测验收 5 题 + 阶段复盘笔记 |
 
 > 8 天提前完成 → Day 9–10 直接进入 Phase 2 预热（Express 文档 + Full Stack Open）。
@@ -98,7 +98,7 @@
 - [x] Day 6 · TODO API：GET/POST
 - [ ] Day 7 · TODO API：PATCH/DELETE + 错误处理
 - [ ] Day 8 · curl 全量测试 + 边界用例（材料：`01-node-core/day08/`）
-- [ ] Day 9 · 问题清单消化（缓冲）
+- [ ] Day 9 · 问题清单消化（缓冲）（材料：`01-node-core/day09/`）
 - [ ] Day 10 · 验收自测 + 阶段复盘
 
 ## Phase 1 验收标准（进 Phase 2 的门槛）
@@ -136,3 +136,4 @@
 - Node 单线程为什么能并发处理请求？（Day 4 解决）
 - `streams.ts` 里 Writable 逐块 write 和 `await response.text()` 的区别？背压为什么重要？（Day 5 解决）
 - 为什么 ws 服务器需要第三方库？Node 原生 WebSocket 和浏览器的一样吗？（Phase 7 解决）
+- Day 2 遗留：`/hello` `/time` `/echo`（含 query 解析）→ Day 9 补漏（材料：`01-node-core/day09/`）
