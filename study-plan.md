@@ -3,7 +3,7 @@
 > 学员背景：前端工程师（React / TypeScript）
 > 节奏：每周 5 天 × 每天 2 小时 = 10h/周（不限时，以产出收尾）
 > 核心阶段：约 18 周（≈4.5 个月）→ 目标：能独立设计、开发、部署完整全栈应用
-> 当前进度：**Phase 1 · Day 6 完成，Day 7 进行中；Day 8、Day 9 课程材料已备**（课表已按项目驱动重排）
+> 当前进度：**Phase 1 · Day 6 完成，Day 7 进行中；Day 8、Day 9、Day 10 课程材料已备**（课表已按项目驱动重排）
 
 ## 总览
 
@@ -96,10 +96,10 @@
 - [x] Day 4 · 事件循环实验
 - [x] Day 5 · 完整静态服务器（stream + 背压 + 安全）
 - [x] Day 6 · TODO API：GET/POST
-- [ ] Day 7 · TODO API：PATCH/DELETE + 错误处理
-- [ ] Day 8 · curl 全量测试 + 边界用例（材料：`01-node-core/day08/`）
-- [ ] Day 9 · 问题清单消化（缓冲）（材料：`01-node-core/day09/`）
-- [ ] Day 10 · 验收自测 + 阶段复盘
+- [x] Day 7 · TODO API：PATCH/DELETE + 错误处理
+- [x] Day 8 · curl 全量测试 + 边界用例（材料：`01-node-core/day08/`）
+- [x] Day 9 · 问题清单消化（缓冲）（材料：`01-node-core/day09/`）
+- [x] Day 10 · 验收自测 + 阶段复盘
 
 ## Phase 1 验收标准（进 Phase 2 的门槛）
 
