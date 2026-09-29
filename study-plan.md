@@ -88,7 +88,49 @@
 
 > 中文对照规则：把域名 `nodejs.org` 换成 `nodejs.cn`，路径不变（例：https://nodejs.cn/learn/getting-started/introduction-to-nodejs）。
 
-## 进度勾选
+## Phase 2 逐日课表（项目驱动版，10 天）
+
+> 目标：把 Phase 1 用原生 `http` 写的静态服务器 + 内存 TODO，迁到 Express 5 并升级成分层 REST API（校验 + 日志 + 统一错误处理）。在 `02-express-rest/` 下进行。
+> 原则延续 Phase 1：概念随用随补、每天可交付小产出、脱教程做变体。技术决策：Express **5**（async 错误自动转发给错误中间件）、手写校验与日志中间件（不引 zod/morgan，够用即止）。
+
+### 块 1 · Express 上手（Day 1–3）
+
+| Day | 主题 | 学（材料） | 练（交付物） |
+|---|---|---|---|
+| 1 | 脚手架 + Hello world | [Installing](https://expressjs.com/en/starter/installing.html) · [Hello world](https://expressjs.com/en/starter/hello-world.html) · [Migrating to 5](https://expressjs.com/en/guide/migrating-5.html)（只抓差异）· 对照自己的 `day09/server.ts` | `/hello` `/time` `/echo`（含 GET query + POST body）从原生迁到 Express，端口 3040 |
+| 2 | 路由 + 中间件 | [Basic routing](https://expressjs.com/en/starter/basic-routing.html) · [Routing](https://expressjs.com/en/guide/routing.html) · [Using middleware](https://expressjs.com/en/guide/using-middleware.html) | 路由参数 `/todos/:id`、`app.route`、405 + `Allow`；用 `express.json()` 替手写 body 解析、`express.static` 替手写静态服务 |
+| 3 | 错误处理中间件 | [Error handling](https://expressjs.com/en/guide/error-handling.html) | 统一错误响应体（`{ error, ... }`）+ `next(err)` + async handler 里 throw 自动进错误中间件；404 fallback 放最后 |
+
+### 块 2 · 分层 REST API（Day 4–7）
+
+| Day | 主题 | 学（材料） | 练（交付物） |
+|---|---|---|---|
+| 4 | 分层结构 | [Full Stack Open Part 3](https://fullstackopen.com/en/part3)（项目结构小节）· 回顾自己 `day07/server.ts` | 建 `src/routes/` + `src/controllers/` + `src/data/`，把内存 TODO 迁进来 |
+| 5 | 校验层 | MDN [HTTP 状态码](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status) 复习 · 延续 Day 6 手动校验思路 | 手写校验器（必填/类型/长度/非法字段）+ 400 语义 + 明确 error 消息；PATCH 只校验传入字段 |
+| 6 | 日志中间件 + 环境配置 | [Using middleware](https://expressjs.com/en/guide/using-middleware.html) 回顾 · dotenv 概念（查文档即可） | 手写日志中间件（方法/URL/状态/耗时）+ `process.env` + `.env` 管 PORT；不引 morgan |
+| 7 | 完整 CRUD + 状态码 + CORS | MDN [CORS](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/CORS) · 状态码收齐 | 201/204/400/404/405 全语义 + `Access-Control-Allow-Origin`（对照 `day06` 的手写头） |
+
+### 块 3 · 打磨 + 验收（Day 8–10）
+
+| Day | 主题 | 练（交付物） |
+|---|---|---|
+| 8 | curl 测试矩阵 | 全量边界用例（非法 JSON / 不存在 id / 错误方法 / 空 body / 404），落成 `test-matrix.md`（沿用 `day08` 思路） |
+| 9 | 缓冲：问题清单 + 设计评审 | 问题清单逐条消化；原生版 vs Express 版 diff 小结（框架替你省了什么、你多写了什么）；中间件顺序 / 校验放置位置自查 |
+| 10 | 验收自测 + 复盘 | Phase 2 验收 5 条口头自测 + 复盘笔记（`notes/day10.md`） |
+
+> 提前完成 → 直接进入 Phase 3 预热（PostgreSQL + Prisma 文档）。
+
+## Phase 2 验收标准（进 Phase 3 的门槛）
+
+- [ ] 能用自己的话解释中间件机制（顺序、`next()`、错误中间件 4 参 `err,req,res,next`）
+- [ ] 不看教程（只查 Express 文档）能写出分层 TODO API（routes / controllers / data）
+- [ ] 校验、日志、统一错误处理三件套都在
+- [ ] 状态码语义正确：201 / 204 / 400 / 404 / 405，且 405 带 `Allow` 头
+- [ ] `test-matrix.md` 覆盖边界用例（非法 JSON / 不存在 id / 错误方法 / 空 body）
+
+完成 80% 即可进入 Phase 3，卡住的概念记入问题清单，后续边用边补。
+
+## Phase 1 进度勾选
 
 - [x] Day 1 · 归档日（环境认知 + 笔记 + commit）
 - [x] Day 2 · 多路由服务器（已归档 Anatomy 探索；`/hello` · `/time` · `/echo` 顺延 Day 9 补漏）
@@ -100,6 +142,19 @@
 - [x] Day 8 · curl 全量测试 + 边界用例（材料：`01-node-core/day08/`）
 - [x] Day 9 · 问题清单消化（缓冲）（材料：`01-node-core/day09/`）
 - [x] Day 10 · 验收自测 + 阶段复盘
+
+## Phase 2 进度勾选
+
+- [ ] Day 1 · Express 入门 + `/echo` 迁移
+- [ ] Day 2 · 路由 + 中间件
+- [ ] Day 3 · 错误处理中间件
+- [ ] Day 4 · 分层结构（routes / controllers / data）
+- [ ] Day 5 · 校验层
+- [ ] Day 6 · 日志中间件 + 环境配置
+- [ ] Day 7 · 完整 CRUD + CORS
+- [ ] Day 8 · curl 测试矩阵
+- [ ] Day 9 · 缓冲：问题清单 + 设计评审
+- [ ] Day 10 · 验收自测 + 复盘
 
 ## Phase 1 验收标准（进 Phase 2 的门槛）
 
