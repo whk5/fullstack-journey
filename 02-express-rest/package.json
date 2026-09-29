@@ -1,0 +1,21 @@
+{
+  "name": "02-express-rest",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "dev": "node --watch src/index.ts"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^24.0.0",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "express": "^5.0.0"
+  }
+}
