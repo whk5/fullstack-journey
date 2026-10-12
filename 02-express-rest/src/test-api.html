@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 测试页</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+            max-width: 720px;
+            margin: 40px auto;
+            padding: 0 20px;
+            color: #333;
+        }
+        h1 { font-size: 22px; }
+        .form-row { display: flex; gap: 8px; margin: 16px 0; flex-wrap: wrap; }
+        select, input[type="text"] {
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        select { width: 100px; }
+        input[type="text"] { flex: 1; min-width: 220px; }
+        input[type="text"].json {
+            font-family: monospace;
+            font-size: 12px;
+        }
+        button {
+            background: #1677ff;
+            color: #fff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover { background: #4096ff; }
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 13px;
+            min-height: 24px;
+            margin: 8px 0 0;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .meta { color: #666; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <h1>API 测试页</h1>
+    <p class="meta">访问地址: http://localhost:3040/test-api.html</p>
+
+    <div class="form-row">
+        <select id="method">
+            <option>GET</option>
+            <option>POST</option>
+            <option>PUT</option>
+            <option>DELETE</option>
+            <option>PATCH</option>
+        </select>
+        <input type="text" id="path" placeholder="接口路径,如 /user/123">
+        <button onclick="callApi()">调取</button>
+    </div>
+
+    <div class="form-row">
+        <input type="text" id="body" class="json" placeholder='请求体(JSON,POST/PUT 等可选),如 {"name": "Jane"}'>
+    </div>
+
+    <pre id="out">(输入接口路径与方法后点击调取)</pre>
+
+    <script>
+        async function callApi() {
+            const method = document.getElementById("method").value;
+            const path = document.getElementById("path").value.trim();
+            const pre = document.getElementById("out");
+
+            if (!path) {
+                pre.textContent = "请先输入接口路径";
+                return;
+            }
+
+            pre.textContent = method + " " + path + " ...";
+            try {
+                const bodyText = document.getElementById("body").value.trim();
+                const init = { method };
+                if (bodyText) {
+                    try {
+                        init.headers = { "Content-Type": "application/json" };
+                        init.body = JSON.stringify(JSON.parse(bodyText));
+                    } catch (e) {
+                        pre.textContent = "请求体不是合法 JSON: " + bodyText;
+                        return;
+                    }
+                }
+                const res = await fetch(path, init);
+                const text = await res.text();
+                let body = text;
+                try {
+                    body = JSON.stringify(JSON.parse(text), null, 2);
+                } catch (e) { /* 非 JSON 保持原文 */ }
+                pre.textContent = res.status + " " + res.statusText + "\n\n" + body;
+            } catch (err) {
+                pre.textContent = "请求失败: " + err.message + "\n\n请确认已启动服务并监听 3040 端口";
+            }
+        }
+
+        document.getElementById("path").addEventListener("keydown", e => {
+            if (e.key === "Enter") callApi();
+        });
+    </script>
+</body>
+</html>
