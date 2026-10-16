@@ -1,12 +1,17 @@
 // app 层：装配中间件 + 挂载路由 + 404/错误兜底；不负责启动
 import express, { type ErrorRequestHandler, type RequestHandler } from 'express';
 import todoRouter from './routes/todo.ts';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const app = express();
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+
 app.use(express.json());
 app.use('/api/todos', todoRouter);
-
+app.use(express.static(__dirname));
 // 404 fallback：所有路由都没命中才走到这里
 const unknownEndpoint: RequestHandler = (_req, res) => {
   res.status(404).json({ error: 'not found' });
