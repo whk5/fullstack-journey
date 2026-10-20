@@ -3,7 +3,7 @@
 > 学员背景：前端工程师（React / TypeScript）
 > 节奏：每周 5 天 × 每天 2 小时 = 10h/周（不限时，以产出收尾）
 > 核心阶段：约 18 周（≈4.5 个月）→ 目标：能独立设计、开发、部署完整全栈应用
-> 当前进度：**Phase 1 完成（Day 1–10 全部收尾）；Phase 2 · Day 1–3 完成（Express 5 脚手架 + `/hello` `/time` `/echo` 迁移，路由 + 中间件 + 错误处理中间件，端口 3040），Day 4 待做**
+> 当前进度：**Phase 1 完成（Day 1–10 全部收尾）；Phase 2 · Day 1–5 完成（Express 5 脚手架 + `/hello` `/time` `/echo` 迁移，路由 + 中间件 + 错误处理中间件，端口 3040；分层架构 routes/controllers/data + 手写校验层，并修复 errorHandler 4xx/5xx 区分），Day 6 待做**
 
 ## 总览
 
@@ -148,8 +148,8 @@
 - [x] Day 1 · Express 入门 + `/echo` 迁移
 - [x] Day 2 · 路由 + 中间件
 - [x] Day 3 · 错误处理中间件
-- [ ] Day 4 · 分层结构（routes / controllers / data）
-- [ ] Day 5 · 校验层
+- [x] Day 4 · 分层结构（routes / controllers / data）
+- [x] Day 5 · 校验层
 - [ ] Day 6 · 日志中间件 + 环境配置
 - [ ] Day 7 · 完整 CRUD + CORS
 - [ ] Day 8 · curl 测试矩阵
