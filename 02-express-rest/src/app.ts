@@ -1,6 +1,7 @@
 // app 层：装配中间件 + 挂载路由 + 404/错误兜底；不负责启动
 import express, { type ErrorRequestHandler, type RequestHandler } from 'express';
 import todoRouter from './routes/todo.ts';
+import logger from './middleware/logger.ts';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -9,6 +10,7 @@ const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 
+app.use(logger);
 app.use(express.json());
 app.use('/api/todos', todoRouter);
 app.use(express.static(__dirname));
