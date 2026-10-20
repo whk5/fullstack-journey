@@ -18,10 +18,17 @@ const unknownEndpoint: RequestHandler = (_req, res) => {
 };
 app.use(unknownEndpoint);
 
-// 错误处理中间件：必须 4 个参数，Express 才识别
+// 错误处理中间件：必须 4 个参数，Express 才识别。
+// 4xx（客户端错误，如 body-parser 的非法 JSON）用原状态码返回；5xx 记日志并统一返回 500。
 const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
-  console.error(err);
-  res.status(500).json({ error: 'internal server error' });
+  const status = typeof err.status === 'number' && err.status >= 400 && err.status < 500 ? err.status : 500;
+  if (status >= 500) {
+    console.error(err);
+    res.status(500).json({ error: 'internal server error' });
+    return;
+  }
+  const message = err.type === 'entity.parse.failed' ? 'invalid JSON body' : String(err.message ?? 'bad request');
+  res.status(status).json({ error: message });
 };
 app.use(errorHandler);
 
