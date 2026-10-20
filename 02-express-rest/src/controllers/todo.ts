@@ -1,6 +1,7 @@
-// 控制器层：负责 HTTP 语义（解析、校验、状态码），调用数据层，不直接碰数据细节
+// 控制器层：负责 HTTP 语义（解析、状态码），调用校验层 + 数据层，不直接写校验逻辑
 import type { Request, Response } from 'express';
-import { create, getAll, getById, remove, update } from '../data/todo.ts';
+import { create, getAll, remove, update } from '../data/todo.ts';
+import { validateCreate, validateUpdate } from '../validation/todo.ts';
 
 // 非数字 id → 404（day07 里 /todos/abc 不匹配正则就落到 404，这里等价处理）
 function parseId(raw: string | string[] | undefined): number | null {
@@ -15,18 +16,13 @@ export function getTodos(_req: Request, res: Response): void {
 }
 
 export function createTodo(req: Request, res: Response): void {
-  const body = req.body;
-  if (typeof body !== 'object' || body === null) {
-    res.status(400).json({ error: 'body must be a JSON object' });
+  const error = validateCreate(req.body);
+  if (error) {
+    res.status(400).json({ error });
     return;
   }
 
-  const title = (body as { title?: unknown }).title;
-  if (typeof title !== 'string' || title.trim() === '') {
-    res.status(400).json({ error: 'title is required' });
-    return;
-  }
-
+  const title = (req.body as { title: string }).title;
   const todo = create(title.trim());
   res.status(201).json(todo);
 }
@@ -38,32 +34,16 @@ export function updateTodo(req: Request, res: Response): void {
     return;
   }
 
-  const body = req.body;
-  if (typeof body !== 'object' || body === null) {
-    res.status(400).json({ error: 'body must be a JSON object' });
+  const error = validateUpdate(req.body);
+  if (error) {
+    res.status(400).json({ error });
     return;
   }
 
-  const { title, done } = body as { title?: unknown; done?: unknown };
-  const hasTitle = title !== undefined;
-  const hasDone = done !== undefined;
-
-  if (!hasTitle && !hasDone) {
-    res.status(400).json({ error: 'nothing to update' });
-    return;
-  }
-  if (hasTitle && (typeof title !== 'string' || title.trim() === '')) {
-    res.status(400).json({ error: 'title must be a non-empty string' });
-    return;
-  }
-  if (hasDone && typeof done !== 'boolean') {
-    res.status(400).json({ error: 'done must be a boolean' });
-    return;
-  }
-
+  const { title, done } = req.body as { title?: string; done?: boolean };
   const patch: { title?: string; done?: boolean } = {};
-  if (hasTitle) patch.title = (title as string).trim();
-  if (hasDone) patch.done = done as boolean;
+  if (title !== undefined) patch.title = title.trim();
+  if (done !== undefined) patch.done = done;
 
   const updated = update(id, patch);
   if (!updated) {
