@@ -10,14 +10,20 @@
 ## 运行与检查
 
 ```bash
-pnpm dev               # node --watch src/index.ts（开发模式，改动自动重启）
-node src/index.ts      # 直接跑
+pnpm dev               # node --watch --env-file-if-exists=.env src/index.ts（开发模式，改动自动重启）
+node --env-file-if-exists=.env src/index.ts   # 直接跑
 pnpm typecheck         # 全量类型检查
 ```
 
+## 环境变量（PORT）
+
+- 端口通过 `process.env.PORT` 读取，缺省 3040（`src/index.ts`）
+- 本地可建 `.env` 覆盖：`PORT=3050`；`.env` 不入库（已在 .gitignore），模板见 `.env.example`（复制改名即可）
+- 用 Node 24 原生 `--env-file-if-exists` 加载（有 `.env` 才读，没有则走代码默认值），零依赖、不引 dotenv
+
 ## 目录约定
 
-- `src/`：源码（`index.ts` 入口；分层后：`routes/` · `controllers/` · `data/`）
+- `src/`：源码（`index.ts` 入口；分层后：`routes/` · `controllers/` · `data/` · `middleware/`）
 - `test-matrix.md`：Day 8 的 curl 边界用例矩阵
 - `notes/`：学习笔记（`dayXX.md`）
 
